@@ -3,7 +3,7 @@ Grand Prix time extracter for Mario Kart: Double Dash!
 
 `getTimeFromRAM.py`
 
-Modify `p1_timer_address` and `p3_timer_address` if needed by running [dolpin-memory-lib](https://github.com/RenolY2/dolphin-memory-lib) and finding the timer location - complete a grand prix race and perform a 4 bytes (word) search for your time converted to ms, repeating until only 1 location is showing (or 2 locations for player 2 for some reason).
+Modify `p1_timer_address` and `p3_timer_address` if needed by running [Dolphin-memory-engine](https://github.com/aldelaro5/Dolphin-memory-engine) and finding the timer location - complete a grand prix race and perform a 4 bytes (word) search for your time converted to ms, repeating until only 1 location is showing (or 2 locations for player 2 for some reason).
 
 
 `getTimeFromImage.py`
