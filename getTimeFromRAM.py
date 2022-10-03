@@ -203,6 +203,8 @@ def ms_to_time(ms):
 
 
 if __name__ == "__main__":
+    import time
+    from constants import course_ids
     dolphin = Dolphin()
 
     if dolphin.find_dolphin():
@@ -218,31 +220,40 @@ if __name__ == "__main__":
     else:
         print("Didn't find MEM1 and/or MEM2")
 
-    tracks = ["LC", "PB", "BP", "DDD", "MB", "MCR", "DC", "WS",
-              "SL", "MCT", "YC", "DKM", "WC", "DDJ", "BC", "RR"]
-
     # these values may be different for you
     p1_timer_address = 0x810BC400
     p3_timer_address = 0x810CDB90
     # p3_timer_address = 0x810D6758 # this is another address that seems to store the same value
+    current_track_address = 0x803CB6A8
 
     track_order = []
     times1 = []
     times2 = []
-    input("Press enter to start with Luigi Circuit:")
-    track = "LC"
-    while track != "exit" and len(track_order) < 16:
-        track_order.append(track)
+    track = 0x24  # Luigi Circuit
+    track_order.append(course_ids[track])
 
-        input("press enter once race ends to record times...")
-        p1_time = ms_to_time(dolphin.read_uint32(p1_timer_address))
-        p3_time = ms_to_time(dolphin.read_uint32(p3_timer_address))
-        times1.append(p1_time)
-        times2.append(p3_time)
-        print(p1_time)
-        print(p3_time)
+    # wait for first track to start
+    RACE_STARTED = 5999999
+    while dolphin.read_uint32(p1_timer_address) != RACE_STARTED and dolphin.read_uint32(p3_timer_address) != RACE_STARTED:
+        time.sleep(1)
 
-        track = input("Type next course abbreviation:")
+    print("Grand Prix started")
+    while len(track_order) < 16:
+        if dolphin.read_uint32(p1_timer_address) != RACE_STARTED and dolphin.read_uint32(p3_timer_address) != RACE_STARTED:
+            p1_time = ms_to_time(dolphin.read_uint32(p1_timer_address))
+            p3_time = ms_to_time(dolphin.read_uint32(p3_timer_address))
+            times1.append(p1_time)
+            times2.append(p3_time)
+            print(p1_time)
+            print(p3_time)
+            if len(track_order) < 16:
+                while dolphin.read_uint32(current_track_address) == track:
+                    time.sleep(5)
+                track = dolphin.read_uint32(current_track_address)
+                track_order.append(course_ids[track])
+                print("Next Track: " + course_ids[track])
+        time.sleep(1)
+
     print('track order')
     print('"' + '", "'.join(times1) + '"')
     print('p1 times')
