@@ -198,13 +198,13 @@ def ms_to_time(ms):
     ms = ms % 60000
     seconds = math.floor(ms / 1000)
     seconds = str.rjust(str(seconds), 2, '0')
-    ms = str(ms % 1000)
+    ms = str.rjust(str(ms % 1000), 3, '0')
     return mins + ':' + seconds + '.' + ms
 
 
 if __name__ == "__main__":
     import time
-    from constants import course_ids
+    from constants import course_ids, course_index
     dolphin = Dolphin()
 
     if dolphin.find_dolphin():
@@ -221,14 +221,14 @@ if __name__ == "__main__":
         print("Didn't find MEM1 and/or MEM2")
 
     # these values may be different for you
-    p1_timer_address = 0x810BC400
-    p3_timer_address = 0x810CDB90
+    p1_timer_address = 0x810A33F0
+    p3_timer_address = 0x810B4B80
     # p3_timer_address = 0x810D6758 # this is another address that seems to store the same value
     current_track_address = 0x803CB6A8
 
     track_order = []
-    times1 = []
-    times2 = []
+    times1 = [0] * 16
+    times2 = [0] * 16
     track = 0x24  # Luigi Circuit
     track_order.append(course_ids[track])
 
@@ -238,24 +238,24 @@ if __name__ == "__main__":
         time.sleep(1)
 
     print("Grand Prix started")
-    while len(track_order) < 16:
+    while len(track_order) <= 16:
         if dolphin.read_uint32(p1_timer_address) != RACE_STARTED and dolphin.read_uint32(p3_timer_address) != RACE_STARTED:
             p1_time = ms_to_time(dolphin.read_uint32(p1_timer_address))
             p3_time = ms_to_time(dolphin.read_uint32(p3_timer_address))
-            times1.append(p1_time)
-            times2.append(p3_time)
-            print(p1_time)
-            print(p3_time)
+            times1[course_index[course_ids[track]]] = p1_time
+            times2[course_index[course_ids[track]]] = p3_time
             if len(track_order) < 16:
                 while dolphin.read_uint32(current_track_address) == track:
                     time.sleep(5)
                 track = dolphin.read_uint32(current_track_address)
                 track_order.append(course_ids[track])
+                print(times1)
+                print(times2)
                 print("Next Track: " + course_ids[track])
         time.sleep(1)
 
     print('track order')
-    print('"' + '", "'.join(times1) + '"')
+    print('["' + '", "'.join(track_order) + '"]')
     print('p1 times')
     print(','.join(times1))
     print('p3 times')
