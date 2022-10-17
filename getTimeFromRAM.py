@@ -221,14 +221,17 @@ if __name__ == "__main__":
         print("Didn't find MEM1 and/or MEM2")
 
     # these values may be different for you
+    # p1_timer_address = 0x810BC400
+    # p3_timer_address = 0x810CDB90
     p1_timer_address = 0x810A33F0
     p3_timer_address = 0x810B4B80
-    # p3_timer_address = 0x810D6758 # this is another address that seems to store the same value
     current_track_address = 0x803CB6A8
 
+    num_tracks = 16  # 4 for single cup
     track_order = []
-    times1 = [0] * 16
-    times2 = [0] * 16
+    times1 = ["0"] * 16
+    times2 = ["0"] * 16
+    # track = 0x2B  # WC
     track = 0x24  # Luigi Circuit
     track_order.append(course_ids[track])
 
@@ -238,13 +241,15 @@ if __name__ == "__main__":
         time.sleep(1)
 
     print("Grand Prix started")
-    while len(track_order) <= 16:
+    while len(track_order) <= num_tracks:
         if dolphin.read_uint32(p1_timer_address) != RACE_STARTED and dolphin.read_uint32(p3_timer_address) != RACE_STARTED:
             p1_time = ms_to_time(dolphin.read_uint32(p1_timer_address))
             p3_time = ms_to_time(dolphin.read_uint32(p3_timer_address))
             times1[course_index[course_ids[track]]] = p1_time
             times2[course_index[course_ids[track]]] = p3_time
-            if len(track_order) < 16:
+            if len(track_order) == num_tracks:
+                break
+            else:
                 while dolphin.read_uint32(current_track_address) == track:
                     time.sleep(5)
                 track = dolphin.read_uint32(current_track_address)
