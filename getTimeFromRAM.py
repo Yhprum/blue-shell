@@ -231,7 +231,6 @@ if __name__ == "__main__":
     track_order = []
     times1 = ["0"] * 16
     times2 = ["0"] * 16
-    track = 0x24  # Luigi Circuit
 
     # wait for first track to start
     RACE_STARTED = 5999999
@@ -239,7 +238,8 @@ if __name__ == "__main__":
         time.sleep(1)
 
     print("Grand Prix started")
-    track_order.append(course_ids[dolphin.read_uint32(current_track_address)])
+    track = dolphin.read_uint32(current_track_address)
+    track_order.append(course_ids[track])
     while len(track_order) <= num_tracks:
         if dolphin.read_uint32(p1_timer_address) != RACE_STARTED and dolphin.read_uint32(p3_timer_address) != RACE_STARTED:
             p1_time = ms_to_time(dolphin.read_uint32(p1_timer_address))
